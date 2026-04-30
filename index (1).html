@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Калькулятор партнёрства</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #1a1a1a;
+    --green: #1D9E75;
+    --green-bg: #E1F5EE;
+    --green-text: #085041;
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #efefec;
+    --text: #1a1a1a;
+    --text2: #666660;
+    --text3: #999992;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --radius-md: 8px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+
+    /* ── EASY-EDIT VARIABLES ─────────────────────────── */
+    --seller-bonus: 100;   /* бонус продавцу ₽/флакон    */
+    --consign-share: 0.5;  /* доля бренда при реализации */
+    --price-30: 2990;      /* РРЦ 30 мл                  */
+    --price-50: 4990;      /* РРЦ 50 мл                  */
+    --buy-30: 990;         /* опт 30 мл                  */
+    --buy-50: 1490;        /* опт 50 мл                  */
+    --min-order: 50000;    /* минимальная сумма заказа   */
+    --tester-every: 15;    /* тестер каждые N флаконов   */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181a;
+      --bg2: #232325;
+      --bg3: #2c2c2f;
+      --text: #f0f0ec;
+      --text2: #9a9a92;
+      --text3: #666660;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --green-bg: #0a2e22;
+      --green-text: #5DCAA5;
+    }
+  }
+
+  html { background: var(--bg); color: var(--text); }
+
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding-bottom: 40px;
+  }
+
+  .wrap { max-width: 440px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 28px 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .logo-area {
+    width: 160px;
+    height: 44px;
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+  }
+  .logo-area img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+  .tagline { font-size: 13px; color: var(--text3); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 11px 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: 11px;
+    background: var(--bg);
+    color: var(--text2);
+    cursor: pointer;
+    text-align: center;
+    transition: background .15s, color .15s, border-color .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* ── SEG BUTTONS ── */
+  .seg { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
+  .seg button {
+    padding: 10px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text2);
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seg button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ── ROWS ── */
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .row:last-child { margin-bottom: 0; }
+  .row label { font-size: 15px; color: var(--text); flex: 1; }
+
+  /* ── STEPPER ── */
+  .stepper { display: flex; align-items: center; flex-shrink: 0; }
+  .stepper button {
+    width: 38px; height: 38px;
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .1s;
+    line-height: 1;
+  }
+  .stepper button:first-child { border-radius: 8px 0 0 8px; }
+  .stepper button:last-child  { border-radius: 0 8px 8px 0; }
+  .stepper button:active { background: var(--bg3); }
+  .stepper span {
+    width: 46px; height: 38px;
+    border-top: 0.5px solid var(--border2);
+    border-bottom: 0.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 500;
+    background: var(--bg);
+    color: var(--text);
+    user-select: none;
+  }
+
+  /* ── METRICS GRID ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .metric {
+    background: var(--bg2);
+    border-radius: 11px;
+    padding: 13px 12px;
+  }
+  .metric.green { background: var(--green-bg); }
+  .metric .mlabel { font-size: 12px; color: var(--text2); margin-bottom: 4px; line-height: 1.3; }
+  .metric.green .mlabel { color: var(--green-text); opacity: .85; }
+  .metric .mval { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.1; }
+  .metric.green .mval { color: var(--green-text); }
+  .metric .msub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .metric.green .msub { color: var(--green); }
+
+  /* ── INFO ROWS ── */
+  .info-row {
+    display: flex; justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 14px;
+    gap: 8px;
+  }
+  .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .info-row .il { color: var(--text2); flex: 1; }
+  .info-row .ir { font-weight: 500; color: var(--text); text-align: right; }
+
+  /* ── BONUS TAG ── */
+  .bonus-tag {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green-text);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  /* ── NOTICE ── */
+  .notice {
+    background: #fff8e6;
+    color: #7a5700;
+    border: 0.5px solid #f0d070;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  @media (prefers-color-scheme: dark) {
+    .notice { background: #2a2000; color: #d4a820; border-color: #5a4000; }
+  }
+
+  /* ── CTA ── */
+  .cta-block { margin-top: 8px; }
+  .cta-label { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 10px; }
+  .cta-btns { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .cta-btn {
+    display: flex; align-items: center; justify-content: center;
+    gap: 7px; padding: 14px 8px;
+    border-radius: 12px;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    border: none; transition: opacity .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cta-btn:active { opacity: .75; }
+  .cta-tg   { background: var(--accent); color: #fff; }
+  .cta-mail { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); }
+  .cta-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ── COMPARE TABLE ── */
+  .compare-wrap { overflow-x: auto; }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .compare-table th {
+    padding: 8px 6px; font-weight: 600; font-size: 12px;
+    color: var(--text2); text-align: center;
+    border-bottom: 0.5px solid var(--border);
+    letter-spacing: .03em;
+  }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table td {
+    padding: 10px 6px;
+    border-bottom: 0.5px solid var(--border);
+    text-align: center; vertical-align: middle;
+  }
+  .compare-table td:first-child { text-align: left; color: var(--text2); font-size: 13px; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .better { color: var(--green); font-weight: 600; }
+
+  .verdict-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="logo-area" id="logo-area">
+      <span id="logo-text">ваш логотип</span>
+      <img id="logo-img" alt="логотип">
+    </div>
+    <span class="tagline">Калькулятор условий партнёрства</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('consign')">Реализация</div>
+    <div class="tab" onclick="switchTab('purchase')">Опт</div>
+    <div class="tab" onclick="switchTab('compare')">Сравнить</div>
+  </div>
+
+  <!-- ══════════════ РЕАЛИЗАЦИЯ ══════════════ -->
+  <div class="section active" id="tab-consign">
+    <div class="card">
+      <div class="card-title">Параметры</div>
+      <div class="row">
+        <label>Объём флакона</label>
+        <div class="seg">
+          <button class="active" id="cs-vol-30" onclick="setConsignVol(30)">30 мл</button>
+          <button id="cs-vol-50" onclick="setConsignVol(50)">50 мл</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Ароматов</label>
+        <div class="stepper">
+          <button onclick="adj('cs-aromas',-1,1,20)">−</button>
+          <span id="cs-aromas">3</span>
+          <button onclick="adj('cs-aromas',1,1,20)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Флаконов на аромат</label>
+        <div class="stepper">
+          <button onclick="adj('cs-per-aroma',-1,1,50)">−</button>
+          <span id="cs-per-aroma">10</span>
+          <button onclick="adj('cs-per-aroma',1,1,50)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Продаж в месяц</label>
+        <div class="stepper">
+          <button onclick="adj('cs-sales',-1,1,200)">−</button>
+          <span id="cs-sales">10</span>
+          <button onclick="adj('cs-sales',1,1,200)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bonus-tag" id="cs-bonus-tag">+ 100 ₽ с каждого флакона — бонус продавцу</div>
+
+    <div class="metrics" id="cs-metrics"></div>
+
+    <div class="card">
+      <div class="card-title">Детали расчёта</div>
+      <div id="cs-details"></div>
+    </div>
+
+    <div class="cta-block">
+      <div class="cta-label">Готовы обсудить условия?</div>
+      <div class="cta-btns">
+        <a class="cta-btn cta-tg" id="cs-tg-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          Telegram
+        </a>
+        <a class="cta-btn cta-mail" id="cs-mail-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          Написать
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ОПТ ══════════════ -->
+  <div class="section" id="tab-purchase">
+    <div class="card">
+      <div class="card-title">Параметры</div>
+      <div class="row">
+        <label>Объём флакона</label>
+        <div class="seg">
+          <button class="active" id="pu-vol-30" onclick="setPurchaseVol(30)">30 мл</button>
+          <button id="pu-vol-50" onclick="setPurchaseVol(50)">50 мл</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Ароматов</label>
+        <div class="stepper">
+          <button onclick="adj('pu-aromas',-1,1,20)">−</button>
+          <span id="pu-aromas">3</span>
+          <button onclick="adj('pu-aromas',1,1,20)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Флаконов на аромат</label>
+        <div class="stepper">
+          <button onclick="adj('pu-per-aroma',-1,1,200)">−</button>
+          <span id="pu-per-aroma">20</span>
+          <button onclick="adj('pu-per-aroma',1,1,200)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Продаж в месяц</label>
+        <div class="stepper">
+          <button onclick="adj('pu-sales',-1,1,500)">−</button>
+          <span id="pu-sales">15</span>
+          <button onclick="adj('pu-sales',1,1,500)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics" id="pu-metrics"></div>
+
+    <div class="card">
+      <div class="card-title">Детали расчёта</div>
+      <div id="pu-details"></div>
+    </div>
+
+    <div class="card" id="pu-bonus-card">
+      <div class="card-title">Бонусы к заказу</div>
+      <div id="pu-bonuses"></div>
+    </div>
+
+    <div class="cta-block">
+      <div class="cta-label">Готовы обсудить условия?</div>
+      <div class="cta-btns">
+        <a class="cta-btn cta-tg" id="pu-tg-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          Telegram
+        </a>
+        <a class="cta-btn cta-mail" id="pu-mail-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          Написать
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ СРАВНЕНИЕ ══════════════ -->
+  <div class="section" id="tab-compare">
+    <div class="card">
+      <div class="card-title">Сравнение моделей</div>
+      <div class="compare-wrap">
+        <table class="compare-table" id="cmp-table"></table>
+      </div>
+    </div>
+    <div class="card" id="cmp-verdict"></div>
+    <div class="cta-block">
+      <div class="cta-label">Готовы обсудить условия?</div>
+      <div class="cta-btns">
+        <a class="cta-btn cta-tg" id="cmp-tg-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          Telegram
+        </a>
+        <a class="cta-btn cta-mail" id="cmp-mail-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          Написать
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══ КОНФИГ — меняйте здесь ══════════════════════════════════════════════ */
+const CFG = {
+  sellerBonus:   100,                   /* бонус продавцу ₽/флакон         */
+  consignShare:  0.5,                   /* доля бренда при реализации      */
+  price30:       2990,                  /* РРЦ 30 мл                       */
+  price50:       4990,                  /* РРЦ 50 мл                       */
+  buy30:         990,                   /* оптовая цена 30 мл              */
+  buy50:         1490,                  /* оптовая цена 50 мл              */
+  minOrder:      50000,                 /* минимальная сумма заказа ₽      */
+  testerEvery:   15,                    /* тестер 50 мл каждые N флаконов  */
+  tgLink:        'https://t.me/dell_daria',
+  email:         'team.voyage.paris@gmail.com',
+};
+/* ════════════════════════════════════════════════════════════════════════ */
+
+let csVol = 30, puVol = 30;
+
+const n   = v => Math.round(v).toLocaleString('ru-RU');
+const pct = v => (v * 100).toFixed(1) + '%';
+const gv  = id => parseInt(document.getElementById(id).textContent) || 0;
+
+function adj(id, delta, min, max) {
+  const el = document.getElementById(id);
+  let v = parseInt(el.textContent) || 0;
+  el.textContent = Math.max(min, Math.min(max, v + delta));
+  recalc();
+}
+
+function setConsignVol(v) {
+  csVol = v;
+  document.getElementById('cs-vol-30').classList.toggle('active', v === 30);
+  document.getElementById('cs-vol-50').classList.toggle('active', v === 50);
+  recalc();
+}
+
+function setPurchaseVol(v) {
+  puVol = v;
+  document.getElementById('pu-vol-30').classList.toggle('active', v === 30);
+  document.getElementById('pu-vol-50').classList.toggle('active', v === 50);
+  recalc();
+}
+
+let lastCalcTab = 'consign';
+
+function switchTab(t) {
+  const names = ['consign', 'purchase', 'compare'];
+  document.querySelectorAll('.tab').forEach((el, i) =>
+    el.classList.toggle('active', names[i] === t));
+  document.querySelectorAll('.section').forEach(el =>
+    el.classList.toggle('active', el.id === 'tab-' + t));
+  if (t === 'consign' || t === 'purchase') lastCalcTab = t;
+  if (t === 'compare') buildCompare();
+}
+
+function calcConsign() {
+  const aromas   = gv('cs-aromas');
+  const perAroma = gv('cs-per-aroma');
+  const sales    = gv('cs-sales');
+  const price    = csVol === 30 ? CFG.price30 : CFG.price50;
+  const totalStock  = aromas * perAroma;
+  const yourCut     = Math.round(price * CFG.consignShare);
+  const bonus       = CFG.sellerBonus;
+  const pointShare  = price - yourCut;
+  const pointNet    = pointShare - bonus;
+  const monthRev    = yourCut * sales;
+  const monthBonus  = bonus * sales;
+  const ros         = yourCut / price;
+  const csTesters   = Math.floor(totalStock / 10);
+  return { aromas, perAroma, sales, price, totalStock,
+           yourCut, bonus, pointShare, pointNet, monthRev, monthBonus, ros, csTesters, vol: csVol };
+}
+
+function calcPurchase() {
+  const aromas   = gv('pu-aromas');
+  const perAroma = gv('pu-per-aroma');
+  const sales    = gv('pu-sales');
+  const buyPrice    = puVol === 30 ? CFG.buy30  : CFG.buy50;
+  const retailPrice = puVol === 30 ? CFG.price30 : CFG.price50;
+  const totalUnits  = aromas * perAroma;
+  const totalCost   = totalUnits * buyPrice;
+  const meetsMin    = totalCost >= CFG.minOrder;
+  const testers     = Math.floor(totalUnits / CFG.testerEvery);
+  const testerValue = testers * CFG.buy50;
+  const margin      = retailPrice - buyPrice;
+  const ros         = margin / retailPrice;
+  const monthRev    = sales * retailPrice;
+  const monthProfit = sales * margin;
+  const payback     = monthProfit > 0 ? totalCost / monthProfit : null;
+  return { aromas, perAroma, sales, buyPrice, retailPrice,
+           totalUnits, totalCost, meetsMin, testers, testerValue,
+           margin, ros, monthRev, monthProfit, payback, vol: puVol };
+}
+
+function renderConsign() {
+  const d = calcConsign();
+  document.getElementById('cs-bonus-tag').textContent =
+    `+ ${n(d.bonus)} ₽ с каждого флакона — бонус продавцу`;
+
+  document.getElementById('cs-metrics').innerHTML = `
+    <div class="metric green">
+      <div class="mlabel">Ваша выручка / флакон</div>
+      <div class="mval">${n(d.yourCut)} ₽</div>
+      <div class="msub">${pct(d.ros)} от РРЦ</div>
+    </div>
+    <div class="metric green">
+      <div class="mlabel">Ваша выручка / месяц</div>
+      <div class="mval">${n(d.monthRev)} ₽</div>
+      <div class="msub">при ${d.sales} прод.</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel">Доля точки / флакон</div>
+      <div class="mval">${n(d.pointShare)} ₽</div>
+      <div class="msub">включая бонус</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel">Маржа точки (чистая)</div>
+      <div class="mval">${n(d.pointNet)} ₽</div>
+      <div class="msub">после бонуса продавцу</div>
+    </div>`;
+
+  document.getElementById('cs-details').innerHTML = `
+    <div class="info-row"><span class="il">Объём</span><span class="ir">${d.vol} мл</span></div>
+    <div class="info-row"><span class="il">РРЦ</span><span class="ir">${n(d.price)} ₽</span></div>
+    <div class="info-row"><span class="il">Ароматов</span><span class="ir">${d.aromas}</span></div>
+    <div class="info-row"><span class="il">Флаконов на аромат</span><span class="ir">${d.perAroma} шт</span></div>
+    <div class="info-row"><span class="il">Стартовый сток</span><span class="ir">${n(d.totalStock)} шт</span></div>
+    <div class="info-row"><span class="il">Тестеры 50 мл (1 на 10 шт)</span><span class="ir">${d.csTesters} шт</span></div>
+    <div class="info-row"><span class="il">Доставка оборудования</span><span class="ir">за наш счёт</span></div>
+    <div class="info-row"><span class="il">Вы получаете / флакон</span><span class="ir">${n(d.yourCut)} ₽</span></div>
+    <div class="info-row"><span class="il">Точка оставляет себе</span><span class="ir">${n(d.pointShare)} ₽</span></div>
+    <div class="info-row"><span class="il">В т.ч. бонус продавцу</span><span class="ir">${n(d.bonus)} ₽</span></div>
+    <div class="info-row"><span class="il">Бонусы за месяц</span><span class="ir">${n(d.monthBonus)} ₽</span></div>`;
+
+  setLinks('cs', buildConsignMsg(d));
+}
+
+function renderPurchase() {
+  const d = calcPurchase();
+  const warn = d.meetsMin ? '' :
+    `<div class="notice">Минимальная сумма заказа — ${n(CFG.minOrder)} ₽. Текущий заказ: ${n(d.totalCost)} ₽. Добавьте флаконов или ароматов.</div>`;
+
+  document.getElementById('pu-metrics').innerHTML = warn + `
+    <div class="metric green">
+      <div class="mlabel">Маржа / флакон</div>
+      <div class="mval">${n(d.margin)} ₽</div>
+      <div class="msub">${pct(d.ros)} от продажи</div>
+    </div>
+    <div class="metric green">
+      <div class="mlabel">Прибыль / месяц</div>
+      <div class="mval">${n(d.monthProfit)} ₽</div>
+      <div class="msub">при ${d.sales} прод.</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel">Сумма заказа</div>
+      <div class="mval">${n(d.totalCost)} ₽</div>
+      <div class="msub">${d.totalUnits} флаконов</div>
+    </div>
+    <div class="metric">
+      <div class="mlabel">Окупаемость</div>
+      <div class="mval">${d.payback ? d.payback.toFixed(1) + ' мес' : '—'}</div>
+      <div class="msub">при текущих продажах</div>
+    </div>`;
+
+  document.getElementById('pu-details').innerHTML = `
+    <div class="info-row"><span class="il">Объём</span><span class="ir">${d.vol} мл</span></div>
+    <div class="info-row"><span class="il">Оптовая цена</span><span class="ir">${n(d.buyPrice)} ₽</span></div>
+    <div class="info-row"><span class="il">РРЦ</span><span class="ir">${n(d.retailPrice)} ₽</span></div>
+    <div class="info-row"><span class="il">Ароматов</span><span class="ir">${d.aromas}</span></div>
+    <div class="info-row"><span class="il">Флаконов на аромат</span><span class="ir">${d.perAroma} шт</span></div>
+    <div class="info-row"><span class="il">Всего флаконов</span><span class="ir">${n(d.totalUnits)} шт</span></div>
+    <div class="info-row"><span class="il">Выручка в месяц</span><span class="ir">${n(d.monthRev)} ₽</span></div>`;
+
+  document.getElementById('pu-bonuses').innerHTML = `
+    <div class="info-row"><span class="il">Тестеры 50 мл в подарок</span><span class="ir">${d.testers} шт</span></div>
+    <div class="info-row"><span class="il">Логистика</span><span class="ir">за наш счёт</span></div>
+    <div class="info-row"><span class="il">Экономия</span><span class="ir">≈ ${n(d.testerValue)} ₽</span></div>`;
+
+  setLinks('pu', buildPurchaseMsg(d));
+}
+
+function buildConsignMsg(d) {
+  return `Добрый день! Интересует сотрудничество по модели реализации.\n\nДанные из калькулятора:\n- Модель: Реализация (50/50)\n- Объём: ${d.vol} мл, РРЦ: ${n(d.price)} ₽\n- Ароматов: ${d.aromas}, флаконов на аромат: ${d.perAroma} шт (итого ${n(d.totalStock)} шт)\n- Ожидаемые продажи: ${d.sales} флаконов/мес\n- Ваша выручка / флакон: ${n(d.yourCut)} ₽\n- Ваша выручка в месяц: ${n(d.monthRev)} ₽`;
+}
+
+function buildPurchaseMsg(d) {
+  return `Добрый день! Интересует сотрудничество по модели опт.\n\nДанные из калькулятора:\n- Модель: Опт\n- Объём: ${d.vol} мл, оптовая цена: ${n(d.buyPrice)} ₽\n- Ароматов: ${d.aromas}, флаконов на аромат: ${d.perAroma} шт (итого ${n(d.totalUnits)} шт)\n- Сумма заказа: ${n(d.totalCost)} ₽\n- Прибыль в месяц: ${n(d.monthProfit)} ₽\n- Тестеры: ${d.testers} шт, экономия: ≈ ${n(d.testerValue)} ₽`;
+}
+
+function setLinks(prefix, msg) {
+  const tgText = encodeURIComponent(msg);
+  document.getElementById(prefix + '-tg-btn').href  = CFG.tgLink;
+  document.getElementById(prefix + '-mail-btn').href =
+    `mailto:${CFG.email}?subject=${encodeURIComponent('Запрос: партнёрство')}&body=${encodeURIComponent(msg)}`;
+}
+
+function buildCompare() {
+  const c = calcConsign();
+
+  // Mirror purchase params from whichever tab was last active
+  const srcAromas   = lastCalcTab === 'consign' ? gv('cs-aromas')    : gv('pu-aromas');
+  const srcPerAroma = lastCalcTab === 'consign' ? gv('cs-per-aroma') : gv('pu-per-aroma');
+  const srcSales    = lastCalcTab === 'consign' ? gv('cs-sales')     : gv('pu-sales');
+  const srcVol      = lastCalcTab === 'consign' ? csVol              : puVol;
+
+  const buyPrice    = srcVol === 30 ? CFG.buy30  : CFG.buy50;
+  const retailPrice = srcVol === 30 ? CFG.price30 : CFG.price50;
+  const totalUnits  = srcAromas * srcPerAroma;
+  const totalCost   = totalUnits * buyPrice;
+  const testers     = Math.floor(totalUnits / CFG.testerEvery);
+  const csTesters   = Math.floor(totalUnits / 10);
+  const testerValue = testers * CFG.buy50;
+  const margin      = retailPrice - buyPrice;
+  const ros_p       = margin / retailPrice;
+  const monthProfit = srcSales * margin;
+  const payback     = monthProfit > 0 ? totalCost / monthProfit : null;
+
+  // Consign mirrored to same params
+  const csPrice   = srcVol === 30 ? CFG.price30 : CFG.price50;
+  const csYourCut = Math.round(csPrice * CFG.consignShare);
+  const csRos     = csYourCut / csPrice;
+  const csMonthRev = csYourCut * srcSales;
+  const csPointShare = csPrice - csYourCut;
+  const csPointNet   = csPointShare - CFG.sellerBonus;
+
+  const rows = [
+    ['Вложения на старт',   '0 ₽',                             n(totalCost) + ' ₽',           'consign'],
+    ['Маржа / флакон',      n(csYourCut) + ' ₽',              n(margin) + ' ₽',              csYourCut >= margin ? 'consign' : 'purchase'],
+    ['Рентабельность',      pct(csRos),                        pct(ros_p),                    csRos >= ros_p ? 'consign' : 'purchase'],
+    ['Прибыль / мес',       n(csMonthRev) + ' ₽',             n(monthProfit) + ' ₽',         csMonthRev >= monthProfit ? 'consign' : 'purchase'],
+    ['Бонус продавцу',      n(CFG.sellerBonus) + ' ₽/флакон', 'нет',                         'consign'],
+    ['Окупаемость',         '—',                               payback ? payback.toFixed(1) + ' мес' : 'н/д', 'consign'],
+    ['Доставка оборудования','за наш счёт',                    'за наш счёт',                 'equal'],
+    ['Тестеры в подарок',   csTesters + ' шт (1 на 10)',       testers + ' шт (1 на 15)',     'equal'],
+    ['Экономия на старте',  '≈ ' + n(csTesters * CFG.buy50) + ' ₽', '≈ ' + n(testerValue) + ' ₽', testerValue >= csTesters * CFG.buy50 ? 'purchase' : 'consign'],
+  ];
+
+  let html = '<thead><tr><th></th><th>Реализация</th><th>Опт</th></tr></thead><tbody>';
+  rows.forEach(([label, cv, pv, winner]) => {
+    html += `<tr>
+      <td>${label}</td>
+      <td class="${winner === 'consign' ? 'better' : ''}">${cv}</td>
+      <td class="${winner === 'purchase' ? 'better' : ''}">${pv}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('cmp-table').innerHTML = html;
+
+  document.getElementById('cmp-verdict').innerHTML = '';
+
+  const cmpMsg = `Добрый день! Интересует сотрудничество, сравнил(а) обе модели.\n\nДанные из калькулятора (объём: ${srcVol} мл, ароматов: ${srcAromas}, флаконов на аромат: ${srcPerAroma}, продаж/мес: ${srcSales}):\n\nРеализация:\n- Выручка/флакон: ${n(csYourCut)} ₽, прибыль/мес: ${n(csMonthRev)} ₽\n- Бонус продавцу: ${n(CFG.sellerBonus)} ₽/флакон\n\nОпт:\n- Маржа/флакон: ${n(margin)} ₽, прибыль/мес: ${n(monthProfit)} ₽\n- Сумма заказа: ${n(totalCost)} ₽`;
+
+  setLinks('cmp', cmpMsg);
+}
+
+function recalc() {
+  renderConsign();
+  renderPurchase();
+  if (document.getElementById('tab-compare').classList.contains('active')) buildCompare();
+}
+
+recalc();
+</script>
+</body>
+</html>
