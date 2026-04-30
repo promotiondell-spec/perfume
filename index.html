@@ -250,7 +250,7 @@
       </div>
     </div>
 
-    <div class="bonus-tag" id="cs-bonus-tag">+ 250 ₽ с каждого флакона — бонус продавцу</div>
+    <div class="bonus-tag" id="cs-bonus-tag">+ 100 ₽ с каждого флакона — бонус продавцу</div>
     <div class="metrics" id="cs-metrics"></div>
     <div class="card">
       <div class="card-title">Детали расчёта</div>
@@ -355,7 +355,7 @@
 <script>
 /* ══ КОНФИГ — меняйте здесь ══════════════════════════════════════════ */
 const CFG = {
-  sellerBonus:  250,
+  sellerBonus:  100,
   consignShare: 0.5,
   price30:      2990,
   price50:      4990,
@@ -449,14 +449,19 @@ function calcConsign() {
   const totalStock   = aromas * perAroma;
   const yourCut      = Math.round(price * CFG.consignShare);
   const bonus        = CFG.sellerBonus;
-  const pointShare   = price - yourCut;
-  const pointNet     = pointShare - bonus;
-  const monthRev     = yourCut * sales;
-  const monthBonus   = bonus * sales;
+  // Бонус — наши расходы, точка получает полные 50% без вычетов
+  const pointShare   = price - yourCut;           // 50% — полная доля точки
+  const ourNet       = yourCut - bonus;            // наша чистая маржа после бонуса
+  const monthRev     = yourCut * sales;            // наша выручка до бонуса
+  const ourMonthNet  = ourNet * sales;             // наша чистая за месяц
+  const monthBonus   = bonus * sales;              // наш расход на бонусы за месяц
   const ros          = pointShare / price;
-  const testers      = Math.floor(totalStock / CFG.testerEvery);
+  // Тестеры: ceil(perAroma/10) на каждый аромат
+  const testersPerAroma = Math.ceil(perAroma / CFG.testerEvery);
+  const testers         = testersPerAroma * aromas;
   return { aromas, perAroma, sales, price, totalStock,
-           yourCut, bonus, pointShare, pointNet, monthRev, monthBonus, ros, testers, vol: csVol };
+           yourCut, bonus, pointShare, ourNet, monthRev, ourMonthNet, monthBonus, ros,
+           testers, testersPerAroma, vol: csVol };
 }
 
 function calcPurchase() {
@@ -467,8 +472,9 @@ function calcPurchase() {
   const retailPrice = puVol===30 ? CFG.price30 : CFG.price50;
   const totalUnits  = aromas * perAroma;
   const totalCost   = totalUnits * buyPrice;
-  const meetsMin    = totalCost >= CFG.minOrder;
-  const testers     = Math.floor(totalUnits / CFG.testerEvery);
+  const meetsMin        = totalCost >= CFG.minOrder;
+  const testersPerAroma = Math.ceil(perAroma / CFG.testerEvery);
+  const testers         = testersPerAroma * aromas;
   const margin      = retailPrice - buyPrice;
   const ros         = margin / retailPrice;
   const monthRev    = sales * retailPrice;
@@ -495,14 +501,14 @@ function renderConsign() {
       <div class="msub">при ${d.sales} прод.</div>
     </div>
     <div class="metric">
-      <div class="mlabel">В т.ч. бонус продавцу</div>
-      <div class="mval">${n(d.monthBonus)} ₽</div>
-      <div class="msub">за месяц</div>
+      <div class="mlabel">Бонус продавцу / флакон</div>
+      <div class="mval">${n(d.bonus)} ₽</div>
+      <div class="msub">наша инвестиция</div>
     </div>
     <div class="metric">
-      <div class="mlabel">Чистая маржа точки</div>
-      <div class="mval">${n(d.pointNet)} ₽</div>
-      <div class="msub">за вычетом бонуса</div>
+      <div class="mlabel">Бонусы за месяц</div>
+      <div class="mval">${n(d.monthBonus)} ₽</div>
+      <div class="msub">при ${d.sales} прод.</div>
     </div>`;
 
   document.getElementById('cs-details').innerHTML = `
@@ -511,10 +517,10 @@ function renderConsign() {
     <div class="info-row"><span class="il">Ароматов</span><span class="ir">${d.aromas}</span></div>
     <div class="info-row"><span class="il">Флаконов на аромат</span><span class="ir">${d.perAroma} шт</span></div>
     <div class="info-row"><span class="il">Стартовый сток</span><span class="ir">${n(d.totalStock)} шт</span></div>
-    <div class="info-row"><span class="il">Тестеры 50 мл (1 на 10)</span><span class="ir">${d.testers} шт</span></div>
+    <div class="info-row"><span class="il">Тестеры 50 мл</span><span class="ir">${d.testers} шт (${d.testersPerAroma} × ${d.aromas} ар.)</span></div>
     <div class="info-row"><span class="il">Доставка оборудования</span><span class="ir">0 ₽</span></div>
     <div class="info-row"><span class="il">Прибыль точки / флакон</span><span class="ir">${n(d.pointShare)} ₽</span></div>
-    <div class="info-row"><span class="il">В т.ч. бонус продавцу</span><span class="ir">${n(d.bonus)} ₽/флакон</span></div>`;
+    <div class="info-row"><span class="il">Бонус продавцу (от нас)</span><span class="ir">${n(d.bonus)} ₽/флакон</span></div>`;
 
   setLinks('cs', buildConsignMsg(d));
 }
@@ -557,7 +563,7 @@ function renderPurchase() {
     <div class="info-row"><span class="il">Выручка в месяц</span><span class="ir">${n(d.monthRev)} ₽</span></div>`;
 
   document.getElementById('pu-bonuses').innerHTML = `
-    <div class="info-row"><span class="il">Тестеры 50 мл (1 на 10)</span><span class="ir">${d.testers} шт</span></div>
+    <div class="info-row"><span class="il">Тестеры 50 мл</span><span class="ir">${d.testers} шт (${d.testersPerAroma} × ${d.aromas} ар.)</span></div>
     <div class="info-row"><span class="il">Доставка товара</span><span class="ir">0 ₽</span></div>`;
 
   setLinks('pu', buildPurchaseMsg(d));
@@ -588,13 +594,13 @@ function buildCompare() {
   const csPointShare = csPrice - csYourCut;
   const csRos        = csPointShare / csPrice;
   const csMonthProfit= csPointShare * srcSales;
-  const csTesters    = Math.floor((srcAromas * srcPerAroma) / CFG.testerEvery);
+  const csTesters   = Math.ceil(srcPerAroma / CFG.testerEvery) * srcAromas;
 
   const buyPrice    = srcVol===30 ? CFG.buy30  : CFG.buy50;
   const retailPrice = srcVol===30 ? CFG.price30 : CFG.price50;
   const totalUnits  = srcAromas * srcPerAroma;
   const totalCost   = totalUnits * buyPrice;
-  const puTesters   = Math.floor(totalUnits / CFG.testerEvery);
+  const puTesters   = Math.ceil(srcPerAroma / CFG.testerEvery) * srcAromas;
   const margin      = retailPrice - buyPrice;
   const ros_p       = margin / retailPrice;
   const monthProfit = srcSales * margin;
