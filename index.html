@@ -215,6 +215,7 @@
 
   <!-- РЕАЛИЗАЦИЯ -->
   <div class="section active" id="tab-consign">
+    <div class="min-notice">Предоставляем стартовый комплект бесплатно. Ваш доход — 50% с продажи + бонусы продавцу.</div>
     <div class="card">
       <div class="card-title">Параметры</div>
       <div class="row">
@@ -250,7 +251,7 @@
       </div>
     </div>
 
-    <div class="bonus-tag" id="cs-bonus-tag">+ 250 ₽ с каждого флакона — бонус продавцу</div>
+    <div class="bonus-tag" id="cs-bonus-tag">+ 100 ₽ с каждого флакона — бонус продавцу</div>
     <div class="metrics" id="cs-metrics"></div>
     <div class="card">
       <div class="card-title">Детали расчёта</div>
@@ -271,7 +272,7 @@
 
   <!-- ОПТ -->
   <div class="section" id="tab-purchase">
-    <div class="min-notice">Минимальная сумма заказа по этой модели — 50 000 ₽</div>
+    <div class="min-notice">Отгрузка по предоплате по оптовой цене. Минимальный заказ — 50 000 ₽. Доставка бесплатно.</div>
     <div class="card">
       <div class="card-title">Параметры</div>
       <div class="row">
@@ -556,7 +557,7 @@ function renderPurchase() {
   document.getElementById('pu-details').innerHTML = `
     <div class="info-row"><span class="il">Объём</span><span class="ir">${d.vol} мл</span></div>
     <div class="info-row"><span class="il">Оптовая цена</span><span class="ir">${n(d.buyPrice)} ₽</span></div>
-    <div class="info-row"><span class="il">Розничная цена</span><span class="ir">${n(d.retailPrice)} ₽</span></div>
+    <div class="info-row"><span class="il">РРЦ</span><span class="ir">${n(d.retailPrice)} ₽</span></div>
     <div class="info-row"><span class="il">Ароматов</span><span class="ir">${d.aromas}</span></div>
     <div class="info-row"><span class="il">Флаконов на аромат</span><span class="ir">${d.perAroma} шт</span></div>
     <div class="info-row"><span class="il">Всего флаконов</span><span class="ir">${n(d.totalUnits)} шт</span></div>
@@ -578,7 +579,8 @@ function buildPurchaseMsg(d) {
 }
 
 function setLinks(prefix, msg) {
-  document.getElementById(prefix+'-tg-btn').href = CFG.tgLink;
+  document.getElementById(prefix+'-tg-btn').href =
+    `https://t.me/dell_daria?text=${encodeURIComponent(msg)}`;
   document.getElementById(prefix+'-mail-btn').href =
     `mailto:${CFG.email}?subject=${encodeURIComponent('Запрос: партнёрство')}&body=${encodeURIComponent(msg)}`;
 }
