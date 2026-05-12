@@ -41,11 +41,9 @@
   }
   .logo-area {
     width: 160px; height: 44px;
-    border: 1.5px dashed var(--border-dark);
-    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: var(--text3);
   }
+  .logo-area img { max-height: 44px; max-width: 160px; width: auto; }
   .tagline { font-size: 13px; color: var(--text3); }
 
   .tabs {
@@ -203,7 +201,7 @@
 <div class="wrap">
 
   <div class="header">
-    <div class="logo-area"><img src="logo.png" alt="AT PARFUM" style="height:32px;width:auto;filter:brightness(0) invert(1)" onerror="this.style.display='none'"></div>
+    <div class="logo-area"><img src="logo.png" alt="AT PARFUM" style="filter:brightness(0) invert(1)"></div>
     <span class="tagline">Калькулятор условий партнёрства</span>
   </div>
 
@@ -228,25 +226,25 @@
       <div class="row">
         <label>Ароматов</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('cs-aromas',-1,1,20)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="cs-aromas" value="3" min="1" max="20" oninput="clampAndRecalc(this,1,20)">
-          <button onpointerdown="startAdj('cs-aromas',1,1,20)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('cs-aromas',-1,1,10)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="cs-aromas" value="3" min="1" max="10" oninput="clampAndRecalc(this,1,10)">
+          <button onpointerdown="startAdj('cs-aromas',1,1,10)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
         <label>Флаконов на аромат</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('cs-per-aroma',-1,1,50)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="cs-per-aroma" value="10" min="1" max="50" oninput="clampAndRecalc(this,1,50)">
-          <button onpointerdown="startAdj('cs-per-aroma',1,1,50)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('cs-per-aroma',-1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="cs-per-aroma" value="10" min="1" max="500" oninput="clampAndRecalc(this,1,500)">
+          <button onpointerdown="startAdj('cs-per-aroma',1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
         <label>Продаж в месяц</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('cs-sales',-1,1,200)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="cs-sales" value="10" min="1" max="200" oninput="clampAndRecalc(this,1,200)">
-          <button onpointerdown="startAdj('cs-sales',1,1,200)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('cs-sales',-1,1,5000)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="cs-sales" value="10" min="1" max="5000" oninput="clampAndRecalc(this,1,5000)">
+          <button onpointerdown="startAdj('cs-sales',1,1,5000)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
     </div>
@@ -285,25 +283,25 @@
       <div class="row">
         <label>Ароматов</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('pu-aromas',-1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="pu-aromas" value="3" min="1" max="999" oninput="clampPurchaseAndRecalc()">
-          <button onpointerdown="startAdj('pu-aromas',1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('pu-aromas',-1,1,10)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="pu-aromas" value="3" min="1" max="10" oninput="clampPurchaseAndRecalc()">
+          <button onpointerdown="startAdj('pu-aromas',1,1,10)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
         <label>Флаконов на аромат</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('pu-per-aroma',-1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="pu-per-aroma" value="20" min="1" max="999" oninput="clampPurchaseAndRecalc()">
-          <button onpointerdown="startAdj('pu-per-aroma',1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('pu-per-aroma',-1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="pu-per-aroma" value="20" min="1" max="500" oninput="clampPurchaseAndRecalc()">
+          <button onpointerdown="startAdj('pu-per-aroma',1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
         <label>Продаж в месяц</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('pu-sales',-1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="pu-sales" value="15" min="1" max="500" oninput="clampAndRecalc(this,1,500)">
-          <button onpointerdown="startAdj('pu-sales',1,1,500)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('pu-sales',-1,1,5000)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="pu-sales" value="15" min="1" max="5000" oninput="clampAndRecalc(this,1,5000)">
+          <button onpointerdown="startAdj('pu-sales',1,1,5000)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
     </div>
@@ -349,12 +347,12 @@
 <script>
 /* ══ КОНФИГ — меняйте здесь ══════════════════════════════════════════ */
 const CFG = {
-  sellerBonus:  150,
+  sellerBonus:  250,
   consignShare: 0.5,
-  price30:      2490,
-  price50:      3490,
-  buy30:        890,
-  buy50:        1190,
+  price30:      2990,
+  price50:      4990,
+  buy30:        990,
+  buy50:        1490,
   minOrder:     50000,
   testerEvery:  10,
   tgLink:       'https://t.me/dell_daria',
@@ -380,12 +378,14 @@ function clampAndRecalc(el, min, max) {
 function clampPurchaseAndRecalc() {
   const aEl = document.getElementById('pu-aromas');
   const pEl = document.getElementById('pu-per-aroma');
-  let a = parseInt(aEl.value) || 1;
-  let p = parseInt(pEl.value) || 1;
-  a = Math.max(1, Math.min(20, a));
-  p = Math.max(1, Math.min(200, p));
+  const sEl = document.getElementById('pu-sales');
+  let a = Math.max(1, Math.min(10,  parseInt(aEl.value)  || 1));
+  let p = Math.max(1, Math.min(500, parseInt(pEl.value)  || 1));
+  const maxSales = a * p;
+  let s = Math.max(1, Math.min(maxSales, parseInt(sEl ? sEl.value : 1) || 1));
   aEl.value = a;
   pEl.value = p;
+  if (sEl) { sEl.max = maxSales; sEl.value = s; }
   recalc();
 }
 
@@ -436,6 +436,13 @@ function switchTab(t) {
 }
 
 function calcConsign() {
+  // Clamp cs-sales to aromas × per-aroma
+  (function(){
+    var _a = parseInt(document.getElementById('cs-aromas').value)||1;
+    var _p = parseInt(document.getElementById('cs-per-aroma').value)||1;
+    var _sEl = document.getElementById('cs-sales');
+    if (_sEl) { var _max = _a*_p; _sEl.max = _max; if(parseInt(_sEl.value)>_max) _sEl.value=_max; }
+  })();
   const aromas   = gv('cs-aromas');
   const perAroma = gv('cs-per-aroma');
   const sales    = gv('cs-sales');
@@ -523,12 +530,11 @@ function renderPurchase() {
   const d = calcPurchase();
 
   document.getElementById('pu-warn').innerHTML = d.meetsMin ? '' :
-  `<div class="warn-notice">Сумма заказа ${n(d.totalCost)} ₽ ниже минимума в ${n(CFG.minOrder)} ₽. Увеличьте количество флаконов.</div>`;
+    `<div class="warn-notice">Сумма заказа ${n(d.totalCost)} ₽ ниже минимума в ${n(CFG.minOrder)} ₽. Увеличьте количество флаконов.</div>`;
   ['pu-tg-btn','pu-mail-btn'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el){ el.style.opacity = d.meetsMin?'1':'0.4'; el.style.pointerEvents = d.meetsMin?'':'none'; }
+    var el=document.getElementById(id);
+    if(el){el.style.opacity=d.meetsMin?'1':'0.4';el.style.pointerEvents=d.meetsMin?'':'none';}
   });
-  var _dummy =
 
   document.getElementById('pu-metrics').innerHTML = `
     <div class="metric green">
@@ -577,21 +583,20 @@ function buildPurchaseMsg(d) {
 }
 
 function setLinks(prefix, msg) {
-  const tgBtn = document.getElementById(prefix+'-tg-btn');
+  var tgBtn = document.getElementById(prefix+'-tg-btn');
   if (tgBtn) {
     tgBtn.onclick = function(e) {
       e.preventDefault();
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       if (isMobile) {
         window.location.href = 'tg://resolve?domain=dell_daria&text=' + encodeURIComponent(msg);
       } else {
         window.open('https://t.me/dell_daria?text=' + encodeURIComponent(msg), '_blank');
       }
     };
+    tgBtn.href = '#';
   }
-  // placeholder so href stays as #
-  document.getElementById(prefix+'-tg-btn').href = '#';
-  var _unused =
+  var _unused = (function(){})();
   document.getElementById(prefix+'-mail-btn').href =
     `mailto:${CFG.email}?subject=${encodeURIComponent('Запрос: партнёрство')}&body=${encodeURIComponent(msg)}`;
 }
