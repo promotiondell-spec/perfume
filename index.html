@@ -523,7 +523,12 @@ function renderPurchase() {
   const d = calcPurchase();
 
   document.getElementById('pu-warn').innerHTML = d.meetsMin ? '' :
-    `<div class="warn-notice">Сумма заказа ${n(d.totalCost)} ₽ ниже минимума в ${n(CFG.minOrder)} ₽. Увеличьте количество флаконов.</div>`;
+  `<div class="warn-notice">Сумма заказа ${n(d.totalCost)} ₽ ниже минимума в ${n(CFG.minOrder)} ₽. Увеличьте количество флаконов.</div>`;
+  ['pu-tg-btn','pu-mail-btn'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.style.opacity = d.meetsMin?'1':'0.4'; el.style.pointerEvents = d.meetsMin?'':'none'; }
+  });
+  var _dummy =
 
   document.getElementById('pu-metrics').innerHTML = `
     <div class="metric green">
@@ -572,22 +577,21 @@ function buildPurchaseMsg(d) {
 }
 
 function setLinks(prefix, msg) {
-  if (prefix === 'pu') {
-    const _meetsMin = !document.getElementById('pu-warn').innerHTML;
-    ['pu-tg-btn','pu-mail-btn'].forEach(function(id){
-      const el = document.getElementById(id);
-      if (el) { el.style.opacity = _meetsMin ? '1' : '0.4'; el.style.pointerEvents = _meetsMin ? '' : 'none'; }
-    });
-  }
-  document.getElementById(prefix+'-tg-btn').href =
-    (function(){
+  const tgBtn = document.getElementById(prefix+'-tg-btn');
+  if (tgBtn) {
+    tgBtn.onclick = function(e) {
+      e.preventDefault();
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if(isMobile){
-        window.location.href = `tg://resolve?domain=dell_daria&text=${encodeURIComponent(msg)}`;
+      if (isMobile) {
+        window.location.href = 'tg://resolve?domain=dell_daria&text=' + encodeURIComponent(msg);
       } else {
-        window.open(`https://t.me/dell_daria?text=${encodeURIComponent(msg)}`, '_blank');
+        window.open('https://t.me/dell_daria?text=' + encodeURIComponent(msg), '_blank');
       }
-    })();
+    };
+  }
+  // placeholder so href stays as #
+  document.getElementById(prefix+'-tg-btn').href = '#';
+  var _unused =
   document.getElementById(prefix+'-mail-btn').href =
     `mailto:${CFG.email}?subject=${encodeURIComponent('Запрос: партнёрство')}&body=${encodeURIComponent(msg)}`;
 }
