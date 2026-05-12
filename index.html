@@ -203,7 +203,7 @@
 <div class="wrap">
 
   <div class="header">
-    <div class="logo-area">ваш логотип</div>
+    <div class="logo-area"><img src="logo.png" alt="AT PARFUM" style="height:32px;width:auto;filter:brightness(0) invert(1)" onerror="this.style.display='none'"></div>
     <span class="tagline">Калькулятор условий партнёрства</span>
   </div>
 
@@ -285,17 +285,17 @@
       <div class="row">
         <label>Ароматов</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('pu-aromas',-1,1,20)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="pu-aromas" value="3" min="1" max="20" oninput="clampPurchaseAndRecalc()">
-          <button onpointerdown="startAdj('pu-aromas',1,1,20)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('pu-aromas',-1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="pu-aromas" value="3" min="1" max="999" oninput="clampPurchaseAndRecalc()">
+          <button onpointerdown="startAdj('pu-aromas',1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
         <label>Флаконов на аромат</label>
         <div class="stepper">
-          <button onpointerdown="startAdj('pu-per-aroma',-1,1,200)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
-          <input type="number" id="pu-per-aroma" value="20" min="1" max="200" oninput="clampPurchaseAndRecalc()">
-          <button onpointerdown="startAdj('pu-per-aroma',1,1,200)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
+          <button onpointerdown="startAdj('pu-per-aroma',-1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">−</button>
+          <input type="number" id="pu-per-aroma" value="20" min="1" max="999" oninput="clampPurchaseAndRecalc()">
+          <button onpointerdown="startAdj('pu-per-aroma',1,1,999)" onpointerup="stopAdj()" onpointerleave="stopAdj()">+</button>
         </div>
       </div>
       <div class="row">
@@ -341,14 +341,7 @@
     </div>
     <div class="cta-block">
       <div class="cta-label">Готовы обсудить условия?</div>
-      <div class="cta-btns">
-        <a class="cta-btn cta-tg" id="cmp-tg-btn" href="#">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>Telegram
-        </a>
-        <a class="cta-btn cta-mail" id="cmp-mail-btn" href="#">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>Написать
-        </a>
-      </div>
+      <div style="text-align:center;padding:8px 0;font-size:13px;color:var(--text2)">Для отправки заявки перейдите на вкладку <b>Реализация</b> или <b>Опт</b></div>
     </div>
   </div>
 
@@ -579,6 +572,13 @@ function buildPurchaseMsg(d) {
 }
 
 function setLinks(prefix, msg) {
+  if (prefix === 'pu') {
+    const _meetsMin = !document.getElementById('pu-warn').innerHTML;
+    ['pu-tg-btn','pu-mail-btn'].forEach(function(id){
+      const el = document.getElementById(id);
+      if (el) { el.style.opacity = _meetsMin ? '1' : '0.4'; el.style.pointerEvents = _meetsMin ? '' : 'none'; }
+    });
+  }
   document.getElementById(prefix+'-tg-btn').href =
     (function(){
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
